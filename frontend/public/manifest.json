@@ -1,0 +1,38 @@
+{
+  "name": "Agent Dashboard",
+  "short_name": "Agents",
+  "description": "Monitor and command AI agents from your iPad",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0284c7",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "View Agents",
+      "url": "/agents",
+      "description": "View all connected agents"
+    },
+    {
+      "name": "View Tasks",
+      "url": "/tasks",
+      "description": "View running tasks"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-production}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:5173}
+      - MCP_ENDPOINT=${MCP_ENDPOINT:-ws://mcp:3002}
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - dashboard-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3001}
+      - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:3001}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - dashboard-network
+    depends_on:
+      - backend
+
+  # MCP mock server for development (Phase 2 will replace with real MCP)
+  mcp-mock:
+    image: node:20-alpine
+    working_dir: /app
+    command: npx -y json-server --watch db.json --port 3002
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./mcp-mock:/app
+    networks:
+      - dashboard-network
+    profiles:
+      - development
+
+networks:
+  dashboard-network:
+    driver: bridge
+
+volumes:
+  node_modules_backend:
+  node_modules_frontend:
