@@ -172,6 +172,43 @@ docs/
 
 ---
 
+## Phase 4: Handoff & Expansion Path 🔄 IN PROGRESS
+
+**Goal:** Preserve decisions, prepare for growth, and hand off a clean, extensible codebase.
+
+**Started:** 2026-02-12
+
+### Tasks
+
+| ID | Task | Status | Notes |
+|----|------|--------|-------|
+| H4.1 | Archive design decisions | ✅ | docs/ADR.md with 8 architecture decisions |
+| H4.2 | Document expansion roadmap | ✅ | docs/ROADMAP.md with prioritized features |
+| H4.3 | Refactor for extensibility | ✅ | Agent adapter interface, sample adapters |
+| H4.4 | Security review | ⏳ | Deferred - requires external review |
+| H4.5 | Handoff session | ⏳ | Requires stakeholder |
+
+### Files Created (Phase 4)
+
+```
+backend/src/services/
+└── agentAdapter.ts      # Agent adapter interface and registry
+
+backend/src/adapters/
+├── AtreidesAdapter.ts   # Sample Atreides agent adapter
+└── SisyphusAdapter.ts   # Sample Sisyphus agent adapter
+
+frontend/e2e/
+├── auth.spec.ts         # Authentication E2E tests
+└── agents.spec.ts       # Agents and navigation E2E tests
+
+docs/
+├── ADR.md               # Architecture Decision Records
+└── ROADMAP.md           # Expansion roadmap with priorities
+```
+
+---
+
 ## Key Decisions
 
 | Decision | Choice | Rationale |
