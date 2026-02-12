@@ -1,149 +1,266 @@
-# iPad Dashboard MVP - Claude Code Instructions
+# iPad Agent Dashboard - Claude Code Instructions
 
 This file contains project-specific instructions for Claude Code when working on this codebase.
 
 ## Project Overview
 
-This is an **iPad Agent Dashboard MVP** for monitoring and commanding AI agents (Atreides, Sisyphus, etc.) via a web interface optimized for iPad. The system uses MCP (Model Context Protocol) for agent communication.
+An **iPad Agent Dashboard MVP** for monitoring and commanding AI agents (Atreides, Sisyphus, etc.) via a web interface optimized for iPad. The system uses MCP (Model Context Protocol) for agent communication.
+
+**Repository:** https://github.com/AmbitiousRealism2025/ipad-dashboard-openclaw
+
+## Current Status
+
+| Phase | Status | Key Deliverables |
+|-------|--------|-----------------|
+| Phase 1 | ✅ Complete | Core scaffold, auth, agents, WebSocket |
+| Phase 2 | ✅ Complete | Real-time updates, RBAC, session management, audit logs |
+| Phase 3 | ✅ Complete | Accessibility, PWA, E2E tests, performance |
+| Phase 4 | 🔄 In Progress | Agent adapters, ADR, roadmap |
 
 ## Tech Stack
 
-- **Frontend:** React 19 + Vite + TypeScript + Tailwind CSS v4
-- **Backend:** Node.js + Express 5 + TypeScript
-- **Auth:** JWT (access + refresh tokens)
-- **Real-time:** WebSocket with JWT authentication
-- **State:** React Query (TanStack Query)
-- **Hosting:** Self-hosted VPS + Tailscale
+| Layer | Technology | Notes |
+|-------|------------|-------|
+| Frontend | React 19 + Vite + TypeScript | Lazy-loaded routes |
+| Styling | Tailwind CSS v4 | Custom theme in index.css |
+| State | TanStack Query + React Context | Server + client state |
+| Backend | Express 5 + TypeScript | Async error handling |
+| Auth | JWT (access + refresh) | 15min access, 7day refresh |
+| Real-time | WebSocket | JWT auth in handshake |
+| Testing | Playwright | E2E tests in frontend/e2e/ |
 
 ## Project Structure
 
 ```
-ipad-dashboard-atgy/
-├── backend/           # Express API server
+ipad-dashboard-openclaw/
+├── frontend/
 │   ├── src/
-│   │   ├── routes/    # API endpoints
-│   │   ├── middleware/# Auth middleware
-│   │   ├── services/  # MCP client, WebSocket
-│   │   └── types/     # TypeScript types
-│   └── dist/          # Compiled output
-├── frontend/          # React app
+│   │   ├── components/     # Reusable UI (Layout, Toast, EmptyState, etc.)
+│   │   ├── context/        # AuthContext, WebSocketContext
+│   │   ├── hooks/          # useAgentStatus, useNotifications, useTaskUpdates
+│   │   ├── pages/          # Dashboard, Agents, Tasks, Notifications, Login
+│   │   ├── services/       # api.ts, websocket.ts
+│   │   └── types/          # TypeScript interfaces
+│   ├── public/             # manifest.json, sw.js (PWA)
+│   ├── e2e/                # Playwright tests
+│   └── playwright.config.ts
+│
+├── backend/
 │   ├── src/
-│   │   ├── pages/     # Route pages
-│   │   ├── components/# Reusable components
-│   │   ├── context/   # React contexts
-│   │   ├── services/  # API & WebSocket clients
-│   │   └── types/     # TypeScript types
-│   └── dist/          # Production build
-├── schemas/           # Documentation (MCP schema)
-├── docs/              # Additional documentation
-├── progress.md        # Progress tracker (UPDATE AFTER EACH PHASE)
-├── docker-compose.yml # Docker configuration
-└── Makefile           # Common commands
+│   │   ├── adapters/       # Agent type adapters (Atreides, Sisyphus)
+│   │   ├── middleware/     # auth, rbac, rateLimit, validation
+│   │   ├── routes/         # agents, auth, tasks, notifications
+│   │   ├── services/       # mcp, websocket, sessionManager, auditLog, agentAdapter
+│   │   └── types/          # TypeScript interfaces
+│   └── logs/               # audit.log (generated)
+│
+├── docs/
+│   ├── ADR.md              # Architecture Decision Records
+│   └── ROADMAP.md          # Future features and priorities
+│
+├── schemas/                # MCP schema documentation
+├── README.md               # Project overview
+├── API.md                  # Complete API reference
+├── MVP-CHECKLIST.md        # Success criteria
+├── progress.md             # Detailed progress tracker
+├── Makefile                # Common commands
+└── docker-compose.yml      # Docker configuration
 ```
 
 ## Development Commands
 
 ```bash
-# Start both servers
-make dev
+# Development
+make dev              # Start both servers
+cd backend && npm run dev
+cd frontend && npm run dev
 
-# Build for production
-make build
+# Production
+make build            # Build both
+make docker-up        # Start with Docker
 
-# Install dependencies
-make install
+# Testing
+cd frontend && npm run test:e2e      # Run E2E tests
+cd frontend && npm run test:e2e:ui   # Run with Playwright UI
 
-# Docker
-make docker-up
-make docker-down
+# Linting
+cd frontend && npm run lint
+cd backend && npm run lint
 ```
 
-## Important Files
+## Key Files to Know
 
-| File | Purpose |
-|------|---------|
-| `progress.md` | Track phase completion - **UPDATE AFTER EACH PHASE** |
-| `schemas/mcp-schema.md` | MCP message format documentation |
-| `.env.example` | Environment variable template |
+| File | Purpose | When to Edit |
+|------|---------|--------------|
+| `progress.md` | Track phase completion | After each major change |
+| `backend/src/services/agentAdapter.ts` | Agent adapter interface | Adding new agent types |
+| `backend/src/middleware/auth.ts` | JWT validation | Auth changes |
+| `frontend/src/context/AuthContext.tsx` | Auth state | Login/logout changes |
+| `frontend/src/context/WebSocketContext.tsx` | WS connection | Real-time changes |
+| `frontend/src/index.css` | Tailwind theme | Color/design changes |
 
 ## Coding Conventions
 
 ### TypeScript
-- Use strict mode
-- Prefer type imports: `import type { X } from './types'`
+- Strict mode enabled
+- Use type imports: `import type { X } from './types'`
+- Prefer interfaces over types for objects
 - Use const assertions for literal types
 
 ### React
-- Functional components with hooks
+- Functional components only
 - Use React Query for server state
-- Use context for global client state (auth)
+- Use context for global client state (auth, websocket)
+- Extract hooks for complex logic
 
 ### Tailwind CSS v4
-- Use `@import "tailwindcss"` in CSS
+- `@import "tailwindcss"` in index.css
 - Custom theme via `@theme` directive
-- iPad-first responsive design (min 1024x768)
+- iPad-first responsive (min 1024x768)
+- Touch targets: minimum 44x44px
 
-### API
+### API Patterns
 - REST endpoints under `/api/`
 - WebSocket at `/ws`
 - JWT in `Authorization: Bearer` header
-- All protected routes require authentication
+- Zod validation on all inputs
+- Consistent error response format
 
-## Agent Integration
+## Authentication Flow
 
-Agents communicate via MCP (Model Context Protocol). See `schemas/mcp-schema.md` for message formats.
+```
+1. POST /api/auth/login → { accessToken, refreshToken, user }
+2. Store tokens in localStorage
+3. Include accessToken in API requests
+4. When 401, POST /api/auth/refresh with refreshToken
+5. Store new accessToken, retry request
+6. On logout, POST /api/auth/logout
+```
 
-**Demo Agents:**
-- Atreides (research, analysis, code-review)
-- Sisyphus (task-execution, automation, monitoring)
-
-## Authentication
-
-- **Access tokens:** 15 minutes
-- **Refresh tokens:** 7 days
-- Stored in localStorage (Phase 2: move to httpOnly cookies)
-- Demo: `demo@example.com` / `demo123`
+**Demo Credentials:**
+- `demo@example.com` / `demo123` (admin)
+- `viewer@example.com` / `viewer123` (viewer)
 
 ## WebSocket Protocol
 
 ```typescript
-// Connect with JWT
-ws://host/ws?token=<jwt>
+// Connect with JWT token
+const ws = new WebSocket('ws://host/ws?token=<jwt>');
 
-// Message format
+// Server → Client messages
 {
   type: 'status_update' | 'agent_message' | 'task_update' | 'notification',
-  payload: any,
-  timestamp: string
+  payload: { ... },
+  timestamp: '2026-02-12T10:00:00Z'
+}
+
+// Client subscribes via useWebSocket hook
+const { subscribe, isConnected } = useWebSocket();
+useEffect(() => {
+  const unsub = subscribe('status_update', handler);
+  return unsub;
+}, []);
+```
+
+## Adding New Agent Types
+
+1. Create adapter in `backend/src/adapters/`:
+
+```typescript
+import { BaseAgentAdapter, AgentConfig, type CommandRequest } from '../services/agentAdapter';
+import type { Agent, AgentStatus, CommandResponse } from '../types';
+
+export class MyAgentAdapter extends BaseAgentAdapter {
+  readonly type = 'my-agent';
+  readonly displayName = 'My Agent';
+
+  async connect(config: AgentConfig): Promise<Agent> { /* ... */ }
+  async disconnect(agentId: string): Promise<void> { /* ... */ }
+  async sendCommand(agentId: string, request: CommandRequest): Promise<CommandResponse> { /* ... */ }
+  async getStatus(agentId: string): Promise<AgentStatus> { /* ... */ }
 }
 ```
 
+2. Register adapter at startup
+
+3. Add agent type styling in `frontend/src/pages/AgentsPage.tsx`
+
+See `backend/src/adapters/AtreidesAdapter.ts` for complete example.
+
+## Common Tasks
+
+### Adding a New API Endpoint
+
+1. Define types in `backend/src/types/index.ts`
+2. Create route handler in `backend/src/routes/`
+3. Add Zod validation schema in `backend/src/middleware/validation.ts`
+4. Update API client in `frontend/src/services/api.ts`
+5. Add React Query hook if needed
+6. Document in `API.md`
+
+### Adding a New Page
+
+1. Create component in `frontend/src/pages/`
+2. Add route in `frontend/src/App.tsx`
+3. Add nav item in `frontend/src/components/Layout.tsx`
+4. Consider lazy loading for performance
+
+### Adding WebSocket Events
+
+1. Define event type in backend
+2. Emit from appropriate service
+3. Add subscription hook in frontend
+4. Update `WebSocketContext.tsx` if needed
+
 ## iPad Considerations
 
-- Touch targets: minimum 44x44px
-- Test at resolutions: 1024x768, 1112x834, 1194x834
-- Support both portrait and landscape
-- Consider PWA for home screen installation
+- Touch targets: minimum 44x44px (use `.touch-target` class)
+- Test resolutions: 1024x768, 1112x834, 1194x834
+- Support portrait and landscape
+- PWA icons needed: 192x192, 512x512
+
+## Security Checklist
+
+- [ ] Never commit `.env` files
+- [ ] JWT_SECRET must be changed in production
+- [ ] Use HTTPS in production (Tailscale or reverse proxy)
+- [ ] Demo users should be disabled/changed in production
+- [ ] Rate limiting is enabled (60 req/min default)
+- [ ] Audit logs capture security events
+
+## Deferred Items
+
+These require external resources:
+
+- **iPad hardware testing** - Requires physical device
+- **Real MCP integration** - Requires agent endpoints
+- **Database persistence** - PostgreSQL + Redis setup
+- **Production deployment** - Requires hosting target
+- **External security review** - Requires auditor
+
+## When Starting a New Session
+
+1. Read `progress.md` for current status
+2. Check `docs/ROADMAP.md` for next priorities
+3. Run `make dev` to verify everything works
+4. Review any TODO comments in code
 
 ## Progress Tracking
 
-**After completing each phase:**
+**After completing significant work:**
 
-1. Update `progress.md` with:
-   - Mark all completed tasks with ✅
-   - Add notes for any deviations or decisions
+1. Update `progress.md`:
+   - Mark tasks complete with ✅
+   - Add notes for decisions made
    - List files created/modified
-   - Document any blockers or deferred items
 
-2. The `progress.md` file should be the single source of truth for project status.
+2. Update relevant documentation:
+   - `API.md` for API changes
+   - `docs/ADR.md` for architectural decisions
+   - `README.md` for feature changes
 
-## Security Notes
-
-- Never commit `.env` files
-- JWT secret must be changed in production
-- TLS is required for production (Phase 3)
-- Audit logging enabled in Phase 2
+3. Commit with descriptive message
 
 ---
 
-*Last updated: 2026-02-12 - Phase 1 Complete*
+*Last updated: 2026-02-12 - Phase 3 Complete, Phase 4 In Progress*

@@ -2,6 +2,17 @@
 
 A responsive web dashboard for monitoring and commanding AI agents, optimized for iPad.
 
+**Repository:** https://github.com/AmbitiousRealism2025/ipad-dashboard-openclaw
+
+## Status
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| Phase 1 | ✅ Complete | Core scaffold, auth, agents, WebSocket |
+| Phase 2 | ✅ Complete | Real-time updates, RBAC, audit logs |
+| Phase 3 | ✅ Complete | Accessibility, PWA, E2E tests |
+| Phase 4 | 🔄 In Progress | Extensibility, documentation |
+
 ## Quick Start
 
 ### Prerequisites
@@ -13,8 +24,8 @@ A responsive web dashboard for monitoring and commanding AI agents, optimized fo
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd ipad-dashboard-atgy
+git clone https://github.com/AmbitiousRealism2025/ipad-dashboard-openclaw.git
+cd ipad-dashboard-openclaw
 
 # Install all dependencies
 make install
@@ -39,17 +50,24 @@ cd frontend && npm run dev   # Frontend on http://localhost:5173
 ```bash
 # Build both frontend and backend
 make build
+```
 
-# Or manually:
-cd backend && npm run build
-cd ../frontend && npm run build
+### Testing
+
+```bash
+# E2E tests (requires frontend dev server running)
+cd frontend
+npm run test:e2e
+
+# E2E tests with UI
+npm run test:e2e:ui
 ```
 
 ## Configuration
 
 ### Environment Variables
 
-Create a `.env` file in the backend directory:
+Create a `.env` file in the backend directory (copy from `.env.example`):
 
 ```env
 # Server
@@ -79,161 +97,166 @@ MCP_WS_URL=ws://localhost:8080
 ## Architecture
 
 ```
-├── frontend/           # React + Vite + TypeScript + Tailwind CSS
+ipad-dashboard-openclaw/
+├── frontend/              # React + Vite + TypeScript + Tailwind CSS
 │   ├── src/
-│   │   ├── components/ # Reusable UI components
-│   │   ├── context/    # React context providers
-│   │   ├── hooks/      # Custom React hooks
-│   │   ├── pages/      # Page components
-│   │   └── services/   # API client services
-│   └── public/         # Static assets, manifest, service worker
+│   │   ├── components/    # Reusable UI components
+│   │   ├── context/       # React context providers (Auth, WebSocket)
+│   │   ├── hooks/         # Custom React hooks
+│   │   ├── pages/         # Page components
+│   │   └── services/      # API client services
+│   ├── public/            # Static assets, PWA manifest, service worker
+│   └── e2e/               # Playwright E2E tests
 │
-├── backend/            # Express + TypeScript
+├── backend/               # Express + TypeScript
 │   ├── src/
-│   │   ├── middleware/ # Express middleware (auth, RBAC, rate limiting)
-│   │   ├── routes/     # API route handlers
-│   │   ├── services/   # Business logic services
-│   │   └── types/      # TypeScript type definitions
-│   └── logs/           # Audit logs (generated)
+│   │   ├── adapters/      # Agent type adapters (extensible)
+│   │   ├── middleware/    # Auth, RBAC, rate limiting, validation
+│   │   ├── routes/        # API route handlers
+│   │   ├── services/      # Business logic (MCP, WebSocket, session)
+│   │   └── types/         # TypeScript type definitions
+│   └── logs/              # Audit logs (generated)
 │
-└── Makefile            # Build and run commands
+├── docs/                  # Architecture decisions, roadmap
+├── schemas/               # MCP schema documentation
+├── progress.md            # Detailed progress tracker
+└── Makefile               # Common commands
 ```
 
 ## Features
 
-### Phase 1 (Complete)
-- ✅ React frontend with Vite and TypeScript
-- ✅ Express backend with TypeScript
+### Core Features (Complete)
 - ✅ JWT authentication with refresh tokens
-- ✅ WebSocket server for real-time communication
-- ✅ MCP client for agent communication
-- ✅ Agent list and command dispatch
-
-### Phase 2 (Complete)
-- ✅ Real-time agent status updates via WebSocket
-- ✅ Message stream per agent
-- ✅ Command history with keyboard navigation
-- ✅ Notifications center with unread count
-- ✅ Task/job dashboard with filtering
-- ✅ Session management and RBAC
+- ✅ Real-time agent status via WebSocket
+- ✅ Command dispatch with response display
+- ✅ Task/job tracking with filtering
+- ✅ Notifications center
+- ✅ Role-based access control (viewer/admin)
+- ✅ Session management with revocation
 - ✅ Audit logging
 - ✅ Rate limiting
 
-### Phase 3 (In Progress)
-- ✅ Error state UX (offline banner, toasts, empty states)
-- ✅ Accessibility audit (ARIA labels, keyboard navigation)
-- ✅ Performance optimization (lazy loading)
-- ✅ PWA baseline (manifest, service worker)
-- 🔄 End-to-end tests
-- 🔄 Documentation
+### UX Features (Complete)
+- ✅ Offline detection with banner
+- ✅ Toast notifications
+- ✅ Empty states for all lists
+- ✅ Command history with keyboard navigation
+- ✅ Message stream per agent
+
+### Quality Features (Complete)
+- ✅ Accessibility (ARIA labels, skip links, keyboard nav)
+- ✅ Lazy-loaded routes (code splitting)
+- ✅ PWA support (manifest, service worker)
+- ✅ E2E test setup with Playwright
+
+### Extensibility (In Progress)
+- ✅ Agent adapter interface for new agent types
+- ✅ Architecture Decision Records
+- ✅ Expansion roadmap
+- 🔄 Real MCP integration
 
 ## API Endpoints
 
-### Authentication
-- `POST /api/auth/login` - Login with email/password
-- `POST /api/auth/logout` - Logout
-- `POST /api/auth/refresh` - Refresh access token
-- `GET /api/auth/me` - Get current user
-- `GET /api/auth/sessions` - List active sessions
-- `POST /api/auth/revoke` - Revoke sessions (admin only)
+See [API.md](./API.md) for complete API documentation.
 
-### Agents
-- `GET /api/agents` - List all agents
-- `GET /api/agents/:id` - Get agent details
-- `POST /api/agents/:id/command` - Send command to agent
-- `PUT /api/agents/:id/status` - Update agent status
+### Quick Reference
 
-### Tasks
-- `GET /api/tasks` - List all tasks
-- `GET /api/tasks/:id` - Get task details
-- `POST /api/tasks` - Create task
-- `PUT /api/tasks/:id` - Update task
-
-### Notifications
-- `GET /api/notifications` - List notifications
-- `POST /api/notifications/:id/read` - Mark as read
-- `POST /api/notifications/read-all` - Mark all as read
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/login` | POST | Login |
+| `/api/auth/refresh` | POST | Refresh token |
+| `/api/agents` | GET | List agents |
+| `/api/agents/:id/command` | POST | Send command |
+| `/api/tasks` | GET/POST | List/create tasks |
+| `/api/notifications` | GET | List notifications |
 
 ### WebSocket Events
-- `status_update` - Agent status changed
-- `agent_message` - New message from agent
-- `task_update` - Task status changed
-- `notification` - New notification
+
+| Event | Description |
+|-------|-------------|
+| `status_update` | Agent status changed |
+| `agent_message` | Message from agent |
+| `task_update` | Task status changed |
+| `notification` | New notification |
 
 ## iPad Access
 
 ### Local Network Access
 
-1. Find your machine's local IP address:
+1. Find your machine's local IP:
    ```bash
-   # macOS
-   ipconfig getifaddr en0
+   ipconfig getifaddr en0  # macOS
    ```
 
-2. On your iPad, open Safari and navigate to:
-   ```
-   http://<your-ip>:5173
-   ```
+2. On iPad Safari, navigate to: `http://<your-ip>:5173`
 
 ### Add to Home Screen
 
-1. Open the dashboard in Safari
-2. Tap the Share button
-3. Select "Add to Home Screen"
-4. Name it "Agent Dashboard" and tap Add
+1. Open dashboard in Safari
+2. Tap Share → "Add to Home Screen"
+3. Name it "Agent Dashboard"
 
-## Troubleshooting
+## Adding New Agent Types
 
-### Frontend won't start
-- Check that port 5173 is not in use
-- Try deleting `node_modules` and running `npm install` again
+The system uses an adapter pattern for agent types. To add a new agent:
 
-### Backend won't start
-- Check that port 3001 is not in use
-- Ensure you have a valid `.env` file
+1. Create a new adapter in `backend/src/adapters/`:
 
-### Can't access from iPad
-- Ensure your iPad and computer are on the same WiFi network
-- Check your firewall settings
-- Verify you're using the correct IP address
+```typescript
+import { BaseAgentAdapter, AgentConfig, type CommandRequest } from '../services/agentAdapter';
+import type { Agent, AgentStatus, CommandResponse } from '../types';
 
-### WebSocket connection fails
-- The backend must be running for WebSocket to work
-- Check browser console for connection errors
+export class MyAgentAdapter extends BaseAgentAdapter {
+  readonly type = 'my-agent';
+  readonly displayName = 'My Custom Agent';
 
-### Login fails
-- Verify the backend is running
-- Check the demo credentials
-- Look at backend logs for errors
+  async connect(config: AgentConfig): Promise<Agent> { /* ... */ }
+  async disconnect(agentId: string): Promise<void> { /* ... */ }
+  async sendCommand(agentId: string, request: CommandRequest): Promise<CommandResponse> { /* ... */ }
+  async getStatus(agentId: string): Promise<AgentStatus> { /* ... */ }
+}
+```
+
+2. Register in the adapter registry (see `agentAdapter.ts`)
+
+See `backend/src/adapters/AtreidesAdapter.ts` for a complete example.
 
 ## Development Commands
 
 ```bash
-# Install dependencies
-make install
-
-# Start development servers
-make dev
-
-# Build for production
-make build
-
-# Run linting
-cd frontend && npm run lint
-cd backend && npm run lint
-
-# Type check
-cd frontend && npm run typecheck
-cd backend && npm run typecheck
+make install     # Install dependencies
+make dev         # Start dev servers
+make build       # Build for production
+make docker-up   # Start with Docker
+make docker-down # Stop Docker
 ```
+
+## Documentation
+
+| File | Description |
+|------|-------------|
+| [README.md](./README.md) | This file - project overview |
+| [CLAUDE.md](./CLAUDE.md) | Claude Code instructions |
+| [API.md](./API.md) | Complete API reference |
+| [docs/ADR.md](./docs/ADR.md) | Architecture decisions |
+| [docs/ROADMAP.md](./docs/ROADMAP.md) | Future features |
+| [MVP-CHECKLIST.md](./MVP-CHECKLIST.md) | Success criteria |
+| [progress.md](./progress.md) | Detailed progress tracker |
 
 ## Security Notes
 
 - **Change JWT_SECRET** in production
-- Use HTTPS in production
-- The demo users should be disabled in production
-- Audit logs are stored in `backend/logs/audit.log`
-- Rate limiting is enabled (60 req/min default)
+- Use HTTPS in production (Tailscale or reverse proxy)
+- Disable or change demo users in production
+- Audit logs stored in `backend/logs/audit.log`
+- Rate limiting: 60 req/min general, 5 req/min auth
+
+## Known Limitations
+
+1. **In-memory storage** - Data lost on restart (PostgreSQL for production)
+2. **Demo agents only** - No real MCP connections yet
+3. **No database** - Production requires PostgreSQL/Redis
+4. **No HTTPS** - Development only; production needs TLS
 
 ## License
 
